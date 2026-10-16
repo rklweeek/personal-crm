@@ -36,10 +36,11 @@ else
 fi
 
 step "Database"
-compose up --detach --wait postgres
+compose up --detach --wait --quiet-pull postgres
 
 step "Migrations"
 compose run --rm migrate
+echo # drizzle-kit ends its output without a newline
 expected=$(docker run --rm "$image" node -p 'require("./drizzle/meta/_journal.json").entries.length')
 applied=$(compose exec -T postgres sh -c \
   'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -tAc "select count(*) from drizzle.__drizzle_migrations"')
