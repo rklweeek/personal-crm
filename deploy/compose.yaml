@@ -1,0 +1,78 @@
+# Production on the server: docker compose -p prod, driven by deploy/*.sh.
+# Secrets come from /srv/personal-crm/.env (see deploy/.env.example),
+# the app image from APP_IMAGE, which deploy.sh sets.
+name: prod
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+x-database-url: &database-url "postgresql://crm:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is not set in .env}@postgres:5432/personal_crm"
+
+# One-off containers from the app image: run, finish, get removed.
+x-job: &job
+  image: ${APP_IMAGE:?APP_IMAGE is not set}
+  profiles: [jobs]
+  restart: "no"
+  environment:
+    DATABASE_URL: *database-url
+  depends_on:
+    postgres:
+      condition: service_healthy
+  logging: *logging
+
+services:
+  postgres:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: crm
+      POSTGRES_DB: personal_crm
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is not set in .env}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    # No published ports: only containers of this project reach the database.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U crm -d personal_crm"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    logging: *logging
+
+  migrate:
+    <<: *job
+    command: ["node_modules/.bin/drizzle-kit", "migrate"]
+
+  seed:
+    <<: *job
+    command: ["node_modules/.bin/tsx", "scripts/seed.ts"]
+
+  app:
+    image: ${APP_IMAGE:?APP_IMAGE is not set}
+    restart: unless-stopped
+    init: true
+    environment:
+      DATABASE_URL: *database-url
+    ports:
+      # nginx proxies app.stayintouch.site here; not reachable from outside.
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:3000/health').then((r) => process.exit(r.ok ? 0 : 1), () => process.exit(1))"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+      start_interval: 2s
+    logging: *logging
+
+volumes:
+  postgres-data:
