@@ -55,12 +55,12 @@ export function SearchBox({ initialQuery }: { initialQuery: string }) {
     >
       {pending ? (
         <Loader2Icon
-          className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 animate-spin text-muted-foreground"
+          className="pointer-events-none absolute top-1/2 left-4.5 size-4 -translate-y-1/2 animate-spin text-brand"
           aria-hidden
         />
       ) : (
         <SearchIcon
-          className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+          className="pointer-events-none absolute top-1/2 left-4.5 size-4 -translate-y-1/2 text-subtle"
           aria-hidden
         />
       )}
@@ -72,13 +72,13 @@ export function SearchBox({ initialQuery }: { initialQuery: string }) {
         placeholder="Найти по имени"
         aria-label="Найти контакт по имени"
         autoComplete="off"
-        className="h-10 pr-9 pl-9 [&::-webkit-search-cancel-button]:hidden"
+        className="h-12 rounded-full pr-12 pl-11.5 [&::-webkit-search-cancel-button]:hidden"
       />
       {query && (
         <button
           type="button"
           onClick={() => handleChange("")}
-          className="absolute top-1/2 right-2 -translate-y-1/2 rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+          className="absolute top-1/2 right-2 -translate-y-1/2 rounded-full p-2 text-subtle hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring"
           aria-label="Очистить поиск"
         >
           <XIcon className="size-4" />

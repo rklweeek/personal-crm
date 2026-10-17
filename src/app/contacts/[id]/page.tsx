@@ -1,4 +1,4 @@
-import { ArrowLeftIcon, CheckCircle2Icon, PencilIcon } from "lucide-react";
+import { PencilIcon } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -8,17 +8,19 @@ import { NoteForm } from "@/components/note-form";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getContact, listNotes, parseContactId } from "@/lib/contacts";
-import { formatDateTime, pluralize } from "@/lib/format";
+import { formatDateTime, initials, pluralize } from "@/lib/format";
 
 export default function ContactPage(props: PageProps<"/contacts/[id]">) {
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-5 lg:gap-6">
       <Link
         href="/"
-        className="inline-flex w-fit items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+        className="inline-flex w-fit items-center gap-2 text-nav font-medium tracking-caps uppercase hover:opacity-85"
       >
-        <ArrowLeftIcon className="size-4" />
-        Все контакты
+        <span className="text-brand" aria-hidden>
+          ←
+        </span>
+        <span className="border-b border-brand pb-px">Все контакты</span>
       </Link>
       <Suspense fallback={<ContactSkeleton />}>
         <ContactDetails {...props} />
@@ -43,32 +45,43 @@ async function ContactDetails({ params, searchParams }: PageProps<"/contacts/[id
       {created && (
         <p
           role="status"
-          className="flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200"
+          className="flex items-center gap-3 rounded-inset bg-card px-4 py-3 text-sm font-medium shadow-card"
         >
-          <CheckCircle2Icon className="size-4" />
+          <span className="size-2.5 shrink-0 rounded-full bg-brand" aria-hidden />
           Контакт добавлен
         </p>
       )}
 
       <Card>
-        <CardHeader className="flex items-start justify-between gap-4">
-          <h1 className="text-2xl font-semibold tracking-tight break-words">{contact.name}</h1>
+        <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex min-w-0 items-center gap-3.5 lg:gap-4">
+            <span
+              className="flex size-14 shrink-0 items-center justify-center rounded-full bg-muted text-base font-medium text-muted-foreground lg:size-17 lg:text-lg"
+              aria-hidden
+            >
+              {initials(contact.name)}
+            </span>
+            <h1 className="min-w-0 text-name font-semibold break-words">{contact.name}</h1>
+          </div>
           <Link
             href={`/contacts/${contact.id}/edit`}
-            className={buttonVariants({ variant: "outline" })}
+            className={buttonVariants({ variant: "outline", className: "self-start sm:self-auto" })}
           >
             <PencilIcon />
             Изменить
           </Link>
         </CardHeader>
         <CardContent>
-          <dl className="grid gap-4 sm:grid-cols-2">
+          <dl className="grid gap-4 border-t border-line-soft pt-4 sm:grid-cols-2 lg:gap-5 lg:pt-5">
             <Detail label="Откуда знакомы" className="sm:col-span-2">
               {contact.howWeMet || <Empty />}
             </Detail>
             <Detail label="Телефон">
               {contact.phone ? (
-                <a href={`tel:${contact.phone.replace(/[^\d+]/g, "")}`} className="hover:underline">
+                <a
+                  href={`tel:${contact.phone.replace(/[^\d+]/g, "")}`}
+                  className="border-b border-line transition-colors hover:border-brand"
+                >
                   {contact.phone}
                 </a>
               ) : (
@@ -77,7 +90,10 @@ async function ContactDetails({ params, searchParams }: PageProps<"/contacts/[id
             </Detail>
             <Detail label="Почта">
               {contact.email ? (
-                <a href={`mailto:${contact.email}`} className="break-all hover:underline">
+                <a
+                  href={`mailto:${contact.email}`}
+                  className="border-b border-line break-all transition-colors hover:border-brand"
+                >
                   {contact.email}
                 </a>
               ) : (
@@ -90,10 +106,10 @@ async function ContactDetails({ params, searchParams }: PageProps<"/contacts/[id
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">
+          <CardTitle className="flex items-baseline gap-2.5">
             Заметки
             {notes.length > 0 && (
-              <span className="ml-2 font-normal text-muted-foreground">{notes.length}</span>
+              <span className="font-mono text-label font-normal text-brand">{notes.length}</span>
             )}
           </CardTitle>
         </CardHeader>
@@ -106,18 +122,20 @@ async function ContactDetails({ params, searchParams }: PageProps<"/contacts/[id
             </p>
           ) : (
             <ol
-              className="flex flex-col gap-4"
+              className="flex flex-col border-t border-line-soft"
               aria-label={`${notes.length} ${pluralize(notes.length, ["заметка", "заметки", "заметок"])}`}
             >
               {notes.map((note) => (
-                <li key={note.id} className="border-l-2 border-border pl-4">
-                  <time
-                    dateTime={note.createdAt.toISOString()}
-                    className="text-xs text-muted-foreground"
-                  >
+                <li
+                  key={note.id}
+                  className="flex flex-col gap-1.5 border-b border-line-soft py-4 last:border-b-0 last:pb-0 sm:grid sm:grid-cols-[184px_minmax(0,1fr)] sm:gap-4 lg:grid-cols-[200px_minmax(0,1fr)]"
+                >
+                  <time dateTime={note.createdAt.toISOString()} className="text-note text-subtle">
                     {formatDateTime(note.createdAt)}
                   </time>
-                  <p className="mt-1 text-sm whitespace-pre-wrap break-words">{note.body}</p>
+                  <p className="text-note whitespace-pre-wrap break-words">
+                    {note.body}
+                  </p>
                 </li>
               ))}
             </ol>
@@ -139,21 +157,21 @@ function Detail({
 }) {
   return (
     <div className={className}>
-      <dt className="text-xs font-medium text-muted-foreground">{label}</dt>
-      <dd className="mt-1 whitespace-pre-wrap break-words">{children}</dd>
+      <dt className="font-mono text-label tracking-mono text-subtle uppercase">{label}</dt>
+      <dd className="mt-1.5 text-base whitespace-pre-wrap break-words">{children}</dd>
     </div>
   );
 }
 
 function Empty() {
-  return <span className="text-muted-foreground">—</span>;
+  return <span className="text-subtle">—</span>;
 }
 
 function ContactSkeleton() {
   return (
-    <div className="flex flex-col gap-5" aria-busy="true" aria-label="Загружаю контакт">
-      <div className="h-44 animate-pulse rounded-xl bg-muted" />
-      <div className="h-64 animate-pulse rounded-xl bg-muted" />
+    <div className="flex flex-col gap-5 lg:gap-6" aria-busy="true" aria-label="Загружаю контакт">
+      <div className="h-52 animate-pulse rounded-card bg-muted" />
+      <div className="h-72 animate-pulse rounded-card bg-muted" />
     </div>
   );
 }

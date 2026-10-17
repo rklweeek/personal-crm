@@ -35,12 +35,22 @@ export function NoteForm({ action }: NoteFormProps) {
           {state.error}
         </p>
       )}
-      <div className="flex items-center gap-3">
+      <div className="mt-1 flex items-center gap-3">
         <Button type="submit" disabled={pending}>
-          {pending ? "Сохраняю…" : "Добавить заметку"}
+          {pending ? (
+            "Сохраняю…"
+          ) : (
+            <>
+              Добавить заметку
+              <span className="text-brand" aria-hidden>
+                →
+              </span>
+            </>
+          )}
         </Button>
         {state.savedAt && !pending && (
-          <span role="status" className="text-sm text-muted-foreground">
+          <span role="status" className="flex items-center gap-2 text-sm text-muted-foreground">
+            <span className="size-2 rounded-full bg-brand" aria-hidden />
             Заметка сохранена
           </span>
         )}

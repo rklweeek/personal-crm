@@ -1,16 +1,16 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { JetBrains_Mono, Onest } from "next/font/google";
 import Link from "next/link";
 
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-sans",
+const onest = Onest({
+  variable: "--font-onest",
   subsets: ["latin", "cyrillic"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
   subsets: ["latin", "cyrillic"],
 });
 
@@ -23,17 +23,23 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="ru"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${onest.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col bg-muted/40">
-        <header className="border-b bg-background">
-          <div className="mx-auto flex h-14 w-full max-w-3xl items-center px-4">
-            <Link href="/" className="font-semibold tracking-tight">
-              Личная CRM
-            </Link>
-          </div>
+      <body className="flex min-h-full flex-col">
+        <header className="mx-auto flex w-full max-w-3xl items-center px-gutter py-5 lg:py-7">
+          <Link href="/" className="text-logo font-semibold tracking-caps uppercase hover:opacity-85">
+            Личная CRM
+          </Link>
         </header>
-        <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-6 sm:py-8">{children}</main>
+        <main className="mx-auto w-full max-w-3xl flex-1 px-gutter pt-2 pb-12 lg:pt-4">
+          {children}
+        </main>
+        <footer className="mx-auto w-full max-w-3xl px-gutter pb-10">
+          <div className="flex justify-between border-t pt-4 font-mono text-footer tracking-mono text-subtle uppercase lg:pt-5">
+            <span>Личная CRM</span>
+            <span>2026</span>
+          </div>
+        </footer>
       </body>
     </html>
   );

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 import { createContact } from "@/app/actions";
 import { ContactForm } from "@/components/contact-form";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 
 export const metadata: Metadata = {
   title: "Новый контакт — Личная CRM",
@@ -10,13 +10,13 @@ export const metadata: Metadata = {
 
 export default function NewContactPage() {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-xl">Новый контакт</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <ContactForm action={createContact} submitLabel="Добавить контакт" cancelHref="/" />
-      </CardContent>
-    </Card>
+    <div className="flex flex-col gap-6 lg:gap-8">
+      <h1 className="text-title font-semibold uppercase">Новый контакт</h1>
+      <Card>
+        <CardContent>
+          <ContactForm action={createContact} submitLabel="Добавить контакт" cancelHref="/" />
+        </CardContent>
+      </Card>
+    </div>
   );
 }

@@ -4,12 +4,19 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * Design tokens — the only source of colors, fonts, type scale and spacing.
+ * The palette, fonts and shapes match the landing page (personal-crm-landing,
+ * src/styles/tokens.css); shadcn/ui semantic colors are mapped onto it below.
+ * Mobile-first: the media query at the bottom switches tokens to desktop (lg).
+ */
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-sans: var(--font-onest), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+  --font-heading: var(--font-onest), system-ui, sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -39,6 +46,11 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  /* Landing colors without a shadcn counterpart. `brand` is the landing's
+     orange `accent`: shadcn already uses `accent` for hover backgrounds. */
+  --color-brand: var(--brand);
+  --color-subtle: var(--subtle);
+  --color-line-soft: var(--line-soft);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -48,83 +60,123 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-:root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+@theme {
+  /* Type scale (mobile values; desktop overrides below). Keep the names in
+     sync with src/lib/utils.ts so `cn` merges them correctly. */
+  --text-title: 27px;
+  --text-title--line-height: 1.04;
+  --text-title--letter-spacing: -0.025em;
+  --text-name: 22px;
+  --text-name--line-height: 1.15;
+  --text-logo: 14px;
+  --text-nav: 12px;
+  --text-button: 15px;
+  --text-card-title: 14px;
+  --text-note: 14px;
+  --text-note--line-height: 1.45;
+  --text-label: 10px;
+  --text-footer: 10px;
+
+  --tracking-caps: 0.04em;
+  --tracking-label: 0.03em;
+  --tracking-mono: 0.06em;
+
+  /* Spacing */
+  --spacing-gutter: 24px;
+  --spacing-card: 20px;
+
+  /* Shapes */
+  --radius-card: 24px;
+  --radius-inset: 14px;
+  --shadow-card: 0 24px 50px -30px rgb(40 40 40 / 0.35);
 }
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+:root {
+  /* Landing palette */
+  --ink: #282828;
+  --brand: #f15534;
+  --paper: #faf8f4;
+  --white: #ffffff;
+  --muted-text: #5f5b55;
+  --subtle: #8a857d;
+  --bubble: #f3f0ea;
+  --line: #e3dfd7;
+  --line-soft: #eee9e1;
+  --error: #b42318;
+
+  /* shadcn/ui semantic colors */
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --card: var(--white);
+  --card-foreground: var(--ink);
+  --popover: var(--white);
+  --popover-foreground: var(--ink);
+  --primary: var(--ink);
+  --primary-foreground: var(--white);
+  --secondary: var(--bubble);
+  --secondary-foreground: var(--ink);
+  --muted: var(--bubble);
+  --muted-foreground: var(--muted-text);
+  --accent: var(--bubble);
+  --accent-foreground: var(--ink);
+  --destructive: var(--error);
+  --border: var(--line);
+  --input: var(--line);
+  --ring: var(--brand);
+  --chart-1: var(--brand);
+  --chart-2: var(--ink);
+  --chart-3: var(--muted-text);
+  --chart-4: var(--subtle);
+  --chart-5: var(--line);
+  --radius: 14px;
+  --sidebar: var(--paper);
+  --sidebar-foreground: var(--ink);
+  --sidebar-primary: var(--ink);
+  --sidebar-primary-foreground: var(--white);
+  --sidebar-accent: var(--bubble);
+  --sidebar-accent-foreground: var(--ink);
+  --sidebar-border: var(--line);
+  --sidebar-ring: var(--brand);
+}
+
+@media (width >= 64rem) {
+  :root {
+    --text-title: clamp(32px, 3.6vw, 44px);
+    --text-title--letter-spacing: -0.03em;
+    --text-name: 26px;
+    --text-logo: 15px;
+    --text-nav: 13px;
+    --text-button: 16px;
+    --text-card-title: 15px;
+    --text-note: 15px;
+    --text-label: 11px;
+    --text-footer: 11px;
+
+    --spacing-gutter: 32px;
+    --spacing-card: 28px;
+
+    --radius-card: 28px;
+    --radius-inset: 16px;
+    --shadow-card: 0 30px 60px -36px rgb(40 40 40 / 0.35);
+  }
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    @apply font-sans;
+  }
   body {
     @apply bg-background text-foreground;
   }
-  html {
-    @apply font-sans;
+  h1,
+  h2 {
+    text-wrap: balance;
+  }
+  a:focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 3px;
   }
 }

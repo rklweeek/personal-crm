@@ -68,9 +68,18 @@ export function ContactForm({
         </p>
       )}
 
-      <div className="flex flex-wrap gap-2">
+      <div className="mt-1 flex flex-col gap-2 sm:flex-row">
         <Button type="submit" size="lg" disabled={pending}>
-          {pending ? "Сохраняю…" : submitLabel}
+          {pending ? (
+            "Сохраняю…"
+          ) : (
+            <>
+              {submitLabel}
+              <span className="text-brand" aria-hidden>
+                →
+              </span>
+            </>
+          )}
         </Button>
         <Link href={cancelHref} className={buttonVariants({ variant: "ghost", size: "lg" })}>
           Отмена
@@ -98,11 +107,11 @@ function Field({
       <Label htmlFor={field}>
         {label}
         {required ? (
-          <span className="text-destructive" aria-hidden>
+          <span className="text-brand" aria-hidden>
             *
           </span>
         ) : (
-          <span className="font-normal text-muted-foreground">— необязательно</span>
+          <span className="font-normal text-subtle">— необязательно</span>
         )}
       </Label>
       {children}
