@@ -1,9 +1,11 @@
 import "server-only";
 
-import { and, asc, count, desc, eq, ilike } from "drizzle-orm";
+import { and, asc, count, desc, eq, ilike, isNotNull, max, sql } from "drizzle-orm";
 
 import { db } from "@/db";
 import { contacts, notes } from "@/db/schema";
+import { toAppDate } from "@/lib/format";
+import { pickDueContacts } from "@/lib/keep-in-touch";
 
 // Escape LIKE wildcards so user input is matched literally.
 function escapeLike(value: string) {
@@ -31,6 +33,32 @@ export async function listContacts(query: string) {
     .from(contacts)
     .where(filter)
     .orderBy(asc(contacts.name), asc(contacts.id));
+}
+
+/**
+ * Contacts with a frequency set whose time to get in touch has come, the most
+ * overdue first. The last contact is the newest note, or the day the contact
+ * was added if there are no notes.
+ */
+export async function listDueContacts() {
+  const rows = await db
+    .select({
+      id: contacts.id,
+      name: contacts.name,
+      contactFrequency: contacts.contactFrequency,
+      lastContactedAt: sql<Date>`coalesce(${max(notes.createdAt)}, ${contacts.createdAt})`.mapWith(
+        notes.createdAt,
+      ),
+    })
+    .from(contacts)
+    .leftJoin(notes, eq(notes.contactId, contacts.id))
+    .where(isNotNull(contacts.contactFrequency))
+    .groupBy(contacts.id);
+
+  const candidates = rows.flatMap((row) =>
+    row.contactFrequency ? [{ ...row, contactFrequency: row.contactFrequency }] : [],
+  );
+  return pickDueContacts(candidates, toAppDate(new Date()));
 }
 
 export async function countContacts() {

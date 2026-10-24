@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
 import { addNote, deleteContact } from "@/app/actions";
+import { ContactFrequencySlider } from "@/components/contact-frequency-slider";
 import { DeleteContactButton } from "@/components/delete-contact-button";
 import { NoteForm } from "@/components/note-form";
 import { StatusMessage } from "@/components/status-message";
@@ -100,6 +101,12 @@ async function ContactDetails({ params, searchParams }: PageProps<"/contacts/[id
               ) : (
                 <Empty />
               )}
+            </Detail>
+            <Detail label="Как часто общаться" className="sm:col-span-2">
+              <ContactFrequencySlider
+                contactId={contact.id}
+                frequency={contact.contactFrequency}
+              />
             </Detail>
           </dl>
         </CardContent>

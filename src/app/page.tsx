@@ -2,10 +2,11 @@ import { PlusIcon } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 
+import { DueContacts } from "@/components/due-contacts";
 import { SearchBox } from "@/components/search-box";
 import { StatusMessage } from "@/components/status-message";
 import { buttonVariants } from "@/components/ui/button";
-import { countContacts, listContacts } from "@/lib/contacts";
+import { countContacts, listContacts, listDueContacts } from "@/lib/contacts";
 import { initials, pluralize } from "@/lib/format";
 
 export default function HomePage({ searchParams }: PageProps<"/">) {
@@ -29,7 +30,12 @@ export default function HomePage({ searchParams }: PageProps<"/">) {
 async function ContactList({ searchParams }: Pick<PageProps<"/">, "searchParams">) {
   const { q, deleted } = await searchParams;
   const query = typeof q === "string" ? q : "";
-  const [contacts, total] = await Promise.all([listContacts(query), countContacts()]);
+  const [contacts, total, dueContacts] = await Promise.all([
+    listContacts(query),
+    countContacts(),
+    // The due block is hidden while searching, so there is nothing to load.
+    query.trim() ? [] : listDueContacts(),
+  ]);
 
   const summary = query.trim()
     ? `Найдено: ${contacts.length} из ${total}`
@@ -39,6 +45,16 @@ async function ContactList({ searchParams }: Pick<PageProps<"/">, "searchParams"
     <div className="flex flex-col gap-4">
       {deleted && <StatusMessage>Контакт удалён</StatusMessage>}
       <SearchBox initialQuery={query} />
+      {dueContacts.length > 0 && (
+        <DueContacts
+          contacts={dueContacts.map(({ id, name, contactFrequency, overdueDays }) => ({
+            id,
+            name,
+            contactFrequency,
+            overdueDays,
+          }))}
+        />
+      )}
       <p
         className="px-1 font-mono text-label tracking-mono text-subtle uppercase"
         aria-live="polite"

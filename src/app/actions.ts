@@ -1,12 +1,17 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { and, eq, gt, sql } from "drizzle-orm";
 import { refresh, revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { db } from "@/db";
 import { contacts, notes } from "@/db/schema";
 import { getContact } from "@/lib/contacts";
+import {
+  CONTACTED_NOTE_BODY,
+  contactFrequencySchema,
+  type ContactFrequency,
+} from "@/lib/keep-in-touch";
 import {
   contactSchema,
   noteSchema,
@@ -115,5 +120,64 @@ export async function addNote(
   await db.insert(notes).values({ contactId, body: parsed.data.body });
 
   refresh();
+  revalidatePath("/", "layout");
   return { body: "", savedAt: Date.now() };
+}
+
+const CONTACT_NOT_FOUND = "Контакт не найден — возможно, его удалили";
+
+export async function setContactFrequency(
+  contactId: number,
+  frequency: ContactFrequency | null,
+): Promise<{ error?: string }> {
+  const parsed = contactFrequencySchema.safeParse(frequency);
+  if (!parsed.success) return { error: "Выберите один из вариантов" };
+
+  const updated = await db
+    .update(contacts)
+    .set({ contactFrequency: parsed.data })
+    .where(eq(contacts.id, contactId))
+    .returning({ id: contacts.id });
+
+  if (updated.length === 0) return { error: CONTACT_NOT_FOUND };
+
+  revalidatePath("/", "layout");
+  return {};
+}
+
+export async function markContacted(
+  contactId: number,
+): Promise<{ noteId: number } | { error: string }> {
+  if (!(await getContact(contactId))) {
+    // Refresh the home page so the deleted contact leaves the due block.
+    revalidatePath("/", "layout");
+    return { error: CONTACT_NOT_FOUND };
+  }
+
+  const [note] = await db
+    .insert(notes)
+    .values({ contactId, body: CONTACTED_NOTE_BODY })
+    .returning({ id: notes.id });
+
+  revalidatePath("/", "layout");
+  return { noteId: note.id };
+}
+
+/**
+ * Deletes a note added by markContacted. Only a fresh "Связались" note can be
+ * deleted, so this never touches anything the user wrote.
+ */
+export async function undoMarkContacted(noteId: number): Promise<{ error?: string }> {
+  await db
+    .delete(notes)
+    .where(
+      and(
+        eq(notes.id, noteId),
+        eq(notes.body, CONTACTED_NOTE_BODY),
+        gt(notes.createdAt, sql`now() - interval '2 minutes'`),
+      ),
+    );
+
+  revalidatePath("/", "layout");
+  return {};
 }

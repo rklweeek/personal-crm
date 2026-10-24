@@ -1,4 +1,11 @@
-import { index, integer, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { index, integer, pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+
+export const contactFrequencyEnum = pgEnum("contact_frequency", [
+  "week",
+  "month",
+  "quarter",
+  "year",
+]);
 
 export const contacts = pgTable(
   "contacts",
@@ -8,6 +15,7 @@ export const contacts = pgTable(
     howWeMet: text("how_we_met").notNull().default(""),
     phone: text("phone").notNull().default(""),
     email: text("email").notNull().default(""),
+    contactFrequency: contactFrequencyEnum("contact_frequency"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),

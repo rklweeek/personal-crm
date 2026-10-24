@@ -12,7 +12,7 @@ import { count } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 
-import { contacts, notes } from "../src/db/schema";
+import { contactFrequencyEnum, contacts, notes } from "../src/db/schema";
 
 const total = Number(process.argv[2] ?? 1000);
 if (!Number.isInteger(total) || total < 1) {
@@ -107,6 +107,8 @@ async function main() {
       email: faker.datatype.boolean(0.7)
         ? faker.internet.email({ firstName, lastName }).toLowerCase()
         : "",
+      // About 20% of contacts get a frequency, so the "Пора связаться" block is not empty.
+      contactFrequency: faker.datatype.boolean(0.2) ? pick(contactFrequencyEnum.enumValues) : null,
       createdAt,
       updatedAt: createdAt,
     };
