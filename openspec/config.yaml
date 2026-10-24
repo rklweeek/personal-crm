@@ -1,0 +1,17 @@
+schema: spec-driven
+
+context: |
+  Language: Russian
+  All artifacts must be written in Russian.
+  Keep OpenSpec structural headings and SHALL/MUST keywords in English.
+
+  Before creating artifacts, read:
+  - CLAUDE.md - project rules: stack, code language, branches, deploy
+  - specs/01-продуктовая-идея.md - product idea, main scenario, constraints, out of scope
+  The owner is not a developer and makes all product decisions: what is not stated by the owner or in these files is an open question, not a decision.
+
+rules:
+  specs:
+    - Scenarios are the feature's acceptance criteria - each one can be checked by hand in the running app
+  design:
+    - New libraries and services are proposed, not chosen - list them in Open Questions for the owner
