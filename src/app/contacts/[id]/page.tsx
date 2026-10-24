@@ -3,8 +3,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
-import { addNote } from "@/app/actions";
+import { addNote, deleteContact } from "@/app/actions";
+import { DeleteContactButton } from "@/components/delete-contact-button";
 import { NoteForm } from "@/components/note-form";
+import { StatusMessage } from "@/components/status-message";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getContact, listNotes, parseContactId } from "@/lib/contacts";
@@ -42,15 +44,7 @@ async function ContactDetails({ params, searchParams }: PageProps<"/contacts/[id
 
   return (
     <>
-      {created && (
-        <p
-          role="status"
-          className="flex items-center gap-3 rounded-inset bg-card px-4 py-3 text-sm font-medium shadow-card"
-        >
-          <span className="size-2.5 shrink-0 rounded-full bg-brand" aria-hidden />
-          Контакт добавлен
-        </p>
-      )}
+      {created && <StatusMessage>Контакт добавлен</StatusMessage>}
 
       <Card>
         <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -63,13 +57,20 @@ async function ContactDetails({ params, searchParams }: PageProps<"/contacts/[id
             </span>
             <h1 className="min-w-0 text-name font-semibold break-words">{contact.name}</h1>
           </div>
-          <Link
-            href={`/contacts/${contact.id}/edit`}
-            className={buttonVariants({ variant: "outline", className: "self-start sm:self-auto" })}
-          >
-            <PencilIcon />
-            Изменить
-          </Link>
+          <div className="flex gap-2 self-start sm:self-auto">
+            <Link
+              href={`/contacts/${contact.id}/edit`}
+              className={buttonVariants({ variant: "outline" })}
+            >
+              <PencilIcon />
+              Изменить
+            </Link>
+            <DeleteContactButton
+              name={contact.name}
+              noteCount={notes.length}
+              action={deleteContact.bind(null, contact.id)}
+            />
+          </div>
         </CardHeader>
         <CardContent>
           <dl className="grid gap-4 border-t border-line-soft pt-4 sm:grid-cols-2 lg:gap-5 lg:pt-5">
