@@ -88,6 +88,15 @@ export async function updateContact(
   redirect(`/contacts/${id}`);
 }
 
+export async function deleteContact(id: number) {
+  // The contact's notes go with it: notes.contact_id is ON DELETE CASCADE.
+  // Already deleted (e.g. in another tab) - same result, so no error.
+  await db.delete(contacts).where(eq(contacts.id, id));
+
+  revalidatePath("/", "layout");
+  redirect("/?deleted=1");
+}
+
 export async function addNote(
   contactId: number,
   _prev: NoteFormState,

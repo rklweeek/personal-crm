@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 
 import { SearchBox } from "@/components/search-box";
+import { StatusMessage } from "@/components/status-message";
 import { buttonVariants } from "@/components/ui/button";
 import { countContacts, listContacts } from "@/lib/contacts";
 import { initials, pluralize } from "@/lib/format";
@@ -26,7 +27,7 @@ export default function HomePage({ searchParams }: PageProps<"/">) {
 }
 
 async function ContactList({ searchParams }: Pick<PageProps<"/">, "searchParams">) {
-  const { q } = await searchParams;
+  const { q, deleted } = await searchParams;
   const query = typeof q === "string" ? q : "";
   const [contacts, total] = await Promise.all([listContacts(query), countContacts()]);
 
@@ -36,6 +37,7 @@ async function ContactList({ searchParams }: Pick<PageProps<"/">, "searchParams"
 
   return (
     <div className="flex flex-col gap-4">
+      {deleted && <StatusMessage>Контакт удалён</StatusMessage>}
       <SearchBox initialQuery={query} />
       <p
         className="px-1 font-mono text-label tracking-mono text-subtle uppercase"
